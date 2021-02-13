@@ -8,6 +8,9 @@ from pollination.honeybee_energy.result import EnergyUseIntensity
 
 # input/output alias
 from pollination.alias.inputs.model import hbjson_model_input
+from pollination.alias.inputs.ddy import ddy_input
+from pollination.alias.inputs.bool_options import filter_des_days_input
+from pollination.alias.outputs.eui import parse_eui_results
 
 
 @dataclass
@@ -28,13 +31,15 @@ class AnnualEnergyUseEntryPoint(DAG):
 
     ddy = Inputs.file(
         description='A DDY file with design days to be used for the initial '
-        'sizing calculation.', extensions=['ddy']
+        'sizing calculation.', extensions=['ddy'],
+        alias=ddy_input
     )
 
     filter_des_days = Inputs.str(
         description='A switch for whether the ddy-file should be filtered to only '
         'include 99.6 and 0.4 design days', default='filter-des-days',
-        spec={'type': 'string', 'enum': ['filter-des-days', 'all-des-days']}
+        spec={'type': 'string', 'enum': ['filter-des-days', 'all-des-days']},
+        alias=filter_des_days_input
     )
 
     units = Inputs.str(
@@ -74,15 +79,8 @@ class AnnualEnergyUseEntryPoint(DAG):
     eui = Outputs.file(
         source='eui.json', description='A JSON containing energy use intensity '
         'information across the total model floor area. Values are either kWh/m2 '
-        'or kBtu/ft2 depending upon the units input.'
-    )
-
-    osm = Outputs.file(
-        source='run/in.osm', description='The OpenStudio model used in the simulation.'
-    )
-
-    idf = Outputs.file(
-        source='run/in.idf', description='The IDF model used in the simulation.'
+        'or kBtu/ft2 depending upon the units input.',
+        alias=parse_eui_results
     )
 
     sql = Outputs.file(
