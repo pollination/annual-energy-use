@@ -20,7 +20,7 @@ setuptools.setup(
     setup_requires=['setuptools_scm'],
     url='https://github.com/pollination/annual-energy-use',                   # will be translated to home
     project_urls={
-        'icon': 'https://raw.githubusercontent.com/ladybug-tools/artwork/master/icons_components/honeybee/png/annualloads.png',
+        'icon': 'https://raw.githubusercontent.com/ladybug-tools/artwork/master/icons_components/honeybee/png/eui.png',
         'docker': 'https://hub.docker.com/r/ladybugtools/honeybee-energy'
     },
     description='Run an annual energy simulation and compute energy use intensity.',                  # will be used as package description
