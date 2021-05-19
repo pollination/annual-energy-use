@@ -1,2 +1,2 @@
 pollination-honeybee-energy==0.3.1
-pollination-alias==0.7.0
+pollination-alias==0.7.1
