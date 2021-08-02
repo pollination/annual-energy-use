@@ -7,38 +7,9 @@ updates:
   open-pull-requests-limit: 10
   ignore:
   - dependency-name: pytest
-    versions:
-    - ">= 0"
   - dependency-name: setuptools
-    versions:
-    - ">= 0"
   - dependency-name: twine
-    versions:
-    - ">= 0"
   - dependency-name: wheel
-    versions:
-    - ">= 0"
-  - dependency-name: pollination-honeybee-energy
-    versions:
-    - 0.2.10
-    - 0.2.3
-    - 0.2.4
-    - 0.2.5
-    - 0.2.6
-    - 0.2.7
-    - 0.2.9
-  - dependency-name: pollination-alias
-    versions:
-    - 0.2.0
-    - 0.2.1
-    - 0.2.2
-    - 0.2.3
-    - 0.4.1
-    - 0.4.2
-    - 0.5.0
-    - 0.5.1
-    - 0.5.2
-    - 0.5.3
   commit-message:
     prefix: fix
     prefix-development: chore
