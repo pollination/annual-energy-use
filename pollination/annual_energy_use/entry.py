@@ -1,7 +1,6 @@
 from pollination_dsl.dag import Inputs, DAG, task, Outputs
 from dataclasses import dataclass
 from typing import Dict, List
-from pollination.honeybee_energy.settings import SimParDefault
 from pollination.honeybee_energy.simulate import SimulateModel
 from pollination.honeybee_energy.result import EnergyUseIntensity
 
@@ -9,7 +8,8 @@ from pollination.honeybee_energy.result import EnergyUseIntensity
 # input/output alias
 from pollination.alias.inputs.model import hbjson_model_input
 from pollination.alias.inputs.ddy import ddy_input
-from pollination.alias.inputs.bool_options import filter_des_days_input
+from pollination.alias.inputs.simulation import energy_simulation_parameter_input, \
+    measures_input, idf_additional_strings_input, viz_variables_input
 from pollination.alias.outputs.eui import parse_eui_results
 
 
@@ -35,11 +35,25 @@ class AnnualEnergyUseEntryPoint(DAG):
         alias=ddy_input
     )
 
-    filter_des_days = Inputs.str(
-        description='A switch for whether the ddy-file should be filtered to only '
-        'include 99.6 and 0.4 design days', default='filter-des-days',
-        spec={'type': 'string', 'enum': ['filter-des-days', 'all-des-days']},
-        alias=filter_des_days_input
+    sim_par = Inputs.file(
+        description='SimulationParameter JSON that describes the settings for the '
+        'simulation.', path='sim-par.json', extensions=['json'], optional=True,
+        alias=energy_simulation_parameter_input
+    )
+
+    measures = Inputs.folder(
+        description='A folder containing an OSW JSON be used as the base for the '
+        'execution of the OpenStuduo CLI. This folder must also contain all of the '
+        'measures that are referenced within the OSW.', path='measures', optional=True,
+        alias=measures_input
+    )
+
+    additional_string = Inputs.str(
+        description='An additional text string to be appended to the IDF before '
+        'simulation. The input should include complete EnergyPlus objects as a '
+        'single string following the IDF format. This input can be used to include '
+        'EnergyPlus objects that are not currently supported by honeybee.', default='',
+        alias=idf_additional_strings_input
     )
 
     units = Inputs.str(
@@ -48,23 +62,28 @@ class AnnualEnergyUseEntryPoint(DAG):
         default='si', spec={'type': 'string', 'enum': ['si', 'ip']}
     )
 
-    # tasks
-    @task(template=SimParDefault)
-    def create_sim_par(self, ddy=ddy, filter_des_days=filter_des_days) -> List[Dict]:
-        return [
-            {'from': SimParDefault()._outputs.sim_par_json,
-             'to': 'simulation_parameter.json'}
-            ]
+    viz_variables = Inputs.str(
+        description='Text for EnergyPlus output variables to be visualized on the '
+        'geometry in an output view_data HTML report. If unspecified, no view_data '
+        'report is produced. Each variable should be in "quotes" and should be '
+        'preceded by a -v option. For example\n-v "Zone Air System Sensible Heating '
+        'Rate" -v "Zone Air System Sensible Cooling Rate".', default='',
+        alias=viz_variables_input
+    )
 
-    @task(template=SimulateModel, needs=[create_sim_par])
+    # tasks
+    @task(template=SimulateModel)
     def run_simulation(
-        self, model=model, epw=epw,
-        sim_par=create_sim_par._outputs.sim_par_json
+        self, model=model, epw=epw, ddy=ddy, sim_par=sim_par,
+        measures=measures, additional_string=additional_string,
+        report_units=units, viz_variables=viz_variables
     ) -> List[Dict]:
         return [
             {'from': SimulateModel()._outputs.hbjson, 'to': 'model.hbjson'},
-            {'from': SimulateModel()._outputs.result_folder, 'to': 'run'}
-            ]
+            {'from': SimulateModel()._outputs.result_folder, 'to': 'run'},
+            {'from': SimulateModel()._outputs.result_report, 'to': 'results.html'},
+            {'from': SimulateModel()._outputs.visual_report, 'to': 'visual.html'}
+        ]
 
     @task(template=EnergyUseIntensity, needs=[run_simulation])
     def compute_eui(
@@ -73,7 +92,7 @@ class AnnualEnergyUseEntryPoint(DAG):
         return [
             {'from': EnergyUseIntensity()._outputs.eui_json,
              'to': 'eui.json'}
-            ]
+        ]
 
     # outputs
     eui = Outputs.file(
@@ -81,6 +100,18 @@ class AnnualEnergyUseEntryPoint(DAG):
         'information across the total model floor area. Values are either kWh/m2 '
         'or kBtu/ft2 depending upon the units input.',
         alias=parse_eui_results
+    )
+
+    result_report = Outputs.file(
+        description='The HTML report with interactive summaries of energy use, '
+        'HVAC component sizes, and other information.', optional=True,
+        source='results.html'
+    )
+
+    visual_report = Outputs.file(
+        description='The HTML report with hourly EnergyPlus output variables '
+        'visualized on the geometry.', optional=True,
+        source='visual.html'
     )
 
     sql = Outputs.file(
