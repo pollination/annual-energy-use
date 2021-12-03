@@ -19,8 +19,8 @@ class AnnualEnergyUseEntryPoint(DAG):
 
     # inputs
     model = Inputs.file(
-        description='A Honeybee model in HBJSON file format.',
-        extensions=['json', 'hbjson'],
+        description='An energy Model as either a HBJSON, OSM, or IDF.',
+        extensions=['hbjson', 'json', 'osm', 'idf'],
         alias=hbjson_model_input
     )
 
@@ -125,7 +125,7 @@ class AnnualEnergyUseEntryPoint(DAG):
     )
 
     html = Outputs.file(
-        source='run/eplustbl.htm',
+        source='run/eplustbl.htm', optional=True,
         description='The result HTML page with summary reports output by the simulation.'
     )
 
