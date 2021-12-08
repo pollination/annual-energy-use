@@ -1,6 +1,7 @@
 # annual-energy-use
 
-Calculate annual energy use intensity (EUI) for a Honeybee model.
+Calculate annual energy use intensity (EUI) for a Honeybee model and optionally
+get several HTML reports to visualize the energy use.
 
 The recipe outputs a file called `eui.json` in the format below:
 
