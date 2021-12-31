@@ -125,7 +125,7 @@ class AnnualEnergyUseEntryPoint(DAG):
     )
 
     html = Outputs.file(
-        source='run/eplustbl.htm', optional=True,
+        source='run/eplustbl.htm',
         description='The result HTML page with summary reports output by the simulation.'
     )
 
