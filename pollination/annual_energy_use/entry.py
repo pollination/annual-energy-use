@@ -9,7 +9,7 @@ from pollination.honeybee_energy.result import EnergyUseIntensity
 from pollination.alias.inputs.model import hbjson_model_input
 from pollination.alias.inputs.ddy import ddy_input
 from pollination.alias.inputs.simulation import energy_simulation_parameter_input, \
-    measures_input, idf_additional_strings_input, viz_variables_input
+    measures_input, additional_idf_input, viz_variables_input
 from pollination.alias.outputs.eui import parse_eui_results
 
 
@@ -48,12 +48,11 @@ class AnnualEnergyUseEntryPoint(DAG):
         alias=measures_input
     )
 
-    additional_string = Inputs.str(
-        description='An additional text string to be appended to the IDF before '
-        'simulation. The input should include complete EnergyPlus objects as a '
-        'single string following the IDF format. This input can be used to include '
-        'EnergyPlus objects that are not currently supported by honeybee.', default='',
-        alias=idf_additional_strings_input
+    additional_idf = Inputs.file(
+        description='An IDF file with text to be appended before simulation. This '
+        'input can be used to include large EnergyPlus objects that are not '
+        'currently supported by honeybee.', path='additional.idf', extensions=['idf'],
+        optional=True, alias=additional_idf_input
     )
 
     units = Inputs.str(
@@ -75,7 +74,7 @@ class AnnualEnergyUseEntryPoint(DAG):
     @task(template=SimulateModel)
     def run_simulation(
         self, model=model, epw=epw, ddy=ddy, sim_par=sim_par,
-        measures=measures, additional_string=additional_string,
+        measures=measures, additional_idf=additional_idf,
         report_units=units, viz_variables=viz_variables
     ) -> List[Dict]:
         return [
