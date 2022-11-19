@@ -1,4 +1,4 @@
-from pollination_dsl.dag import Inputs, DAG, task, Outputs
+from pollination_dsl.dag import Inputs, task, Outputs, GroupedDAG
 from dataclasses import dataclass
 from typing import Dict, List
 from pollination.honeybee_energy.simulate import SimulateModel
@@ -14,7 +14,7 @@ from pollination.alias.outputs.eui import parse_eui_results
 
 
 @dataclass
-class AnnualEnergyUseEntryPoint(DAG):
+class AnnualEnergyUseEntryPoint(GroupedDAG):
     """Annual energy use entry point."""
 
     # inputs
@@ -71,7 +71,7 @@ class AnnualEnergyUseEntryPoint(DAG):
     )
 
     # tasks
-    @task(template=SimulateModel)
+    @task(template=SimulateModel, annotations={'main_task': True})
     def run_simulation(
         self, model=model, epw=epw, ddy=ddy, sim_par=sim_par,
         measures=measures, additional_idf=additional_idf,
