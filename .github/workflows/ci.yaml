@@ -40,26 +40,26 @@ jobs:
     outputs:
       tag: ${{ steps.new_release.outputs.tag }}
 
-  deploy-to-staging:
-    name: Deploy to Pollination Staging
-    runs-on: ubuntu-latest
-    needs: deploy
-    if: ${{ github.ref == 'refs/heads/master' && github.repository_owner == 'pollination' && contains(needs.deploy.outputs.tag, '.') }}
-    steps:
-      - uses: actions/checkout@v2
-      - name: set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.7
-      - name: install python dependencies
-        run: pip install .
-      - name: deploy to staging
-        run: |
-          queenbee
-          pollination dsl push pollination-annual-energy-use --tag ${{needs.deploy.outputs.tag}} -e https://api.staging.pollination.cloud -src https://api.staging.pollination.cloud/registries --push-dependencies
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          QB_POLLINATION_TOKEN: ${{ secrets.POLLINATION_STAGING_LADYBUGBOT_TOKEN }}
+  # deploy-to-staging:
+  #   name: Deploy to Pollination Staging
+  #   runs-on: ubuntu-latest
+  #   needs: deploy
+  #   if: ${{ github.ref == 'refs/heads/master' && github.repository_owner == 'pollination' && contains(needs.deploy.outputs.tag, '.') }}
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: set up Python
+  #       uses: actions/setup-python@v2
+  #       with:
+  #         python-version: 3.7
+  #     - name: install python dependencies
+  #       run: pip install .
+  #     - name: deploy to staging
+  #       run: |
+  #         queenbee
+  #         pollination dsl push pollination-annual-energy-use --tag ${{needs.deploy.outputs.tag}} -e https://api.staging.pollination.cloud -src https://api.staging.pollination.cloud/registries --push-dependencies
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         QB_POLLINATION_TOKEN: ${{ secrets.POLLINATION_STAGING_LADYBUGBOT_TOKEN }}
 
   deploy-to-production:
     name: Deploy to Pollination Production
