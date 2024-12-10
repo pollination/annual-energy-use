@@ -14,7 +14,7 @@ jobs:
       - name: set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: '3.10'
       - name: set up node  # we need node for for semantic release
         uses: actions/setup-node@v2.1.2
         with:
@@ -50,13 +50,13 @@ jobs:
       - name: set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: '3.10'
       - name: install python dependencies
         run: pip install .
       - name: deploy to staging
         run: |
           queenbee
-          pollination dsl push pollination-annual-energy-use --tag ${{needs.deploy.outputs.tag}} -e https://api.staging.pollination.cloud -src https://api.staging.pollination.cloud/registries --push-dependencies
+          pollination dsl push pollination-annual-energy-use --tag ${{needs.deploy.outputs.tag}} -e https://api.staging.pollination.solutions -src https://api.staging.pollination.solutions/registries --push-dependencies
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           QB_POLLINATION_TOKEN: ${{ secrets.POLLINATION_STAGING_LADYBUGBOT_TOKEN }}
@@ -70,7 +70,7 @@ jobs:
       - name: set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: '3.10'
       - name: install python dependencies
         run: |
           pip install pollination-annual-energy-use
@@ -78,7 +78,7 @@ jobs:
       - name: deploy to production
         run: |
           queenbee
-          pollination dsl push pollination-annual-energy-use -e https://api.pollination.cloud -src https://api.pollination.cloud/registries --push-dependencies
+          pollination dsl push pollination-annual-energy-use -e https://api.pollination.solutions -src https://api.pollination.solutions/registries --push-dependencies
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           QB_POLLINATION_TOKEN: ${{ secrets.POLLINATION_LADYBUGBOT_TOKEN }}
